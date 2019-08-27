@@ -164,15 +164,21 @@ public final class FileStorageUtils {
      */
     public static String getInstantUploadFilePath(Locale current,
                                                   String remotePath,
+                                                  String subfolder,
                                                   String fileName,
                                                   long dateTaken,
                                                   Boolean subfolderByDate) {
-        String subPath = "";
+        String subfolderByDatePath = "";
         if (subfolderByDate) {
-            subPath = getSubPathFromDate(dateTaken, current);
+            subfolderByDatePath = getSubPathFromDate(dateTaken, current);
         }
 
-        return remotePath + OCFile.PATH_SEPARATOR + subPath + (fileName == null ? "" : fileName);
+        return remotePath +
+            OCFile.PATH_SEPARATOR +
+            subfolderByDatePath +
+            subfolder + // starts with / so no separator is needed
+            OCFile.PATH_SEPARATOR +
+            (fileName == null ? "" : fileName);
     }
 
 

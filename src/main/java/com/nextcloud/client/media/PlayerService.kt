@@ -65,9 +65,11 @@ class PlayerService : Service() {
         }
 
         override fun onStart() {
+            // empty
         }
 
         override fun onPause() {
+            // empty
         }
 
         override fun onStop() {

@@ -49,6 +49,8 @@ import com.nextcloud.client.device.PowerManagementService;
 import com.nextcloud.client.di.ActivityInjector;
 import com.nextcloud.client.di.DaggerAppComponent;
 import com.nextcloud.client.errorhandling.ExceptionHandler;
+import com.nextcloud.client.jobs.BackgroundJobManager;
+import com.nextcloud.client.jobs.BackgroundJobManagerImpl;
 import com.nextcloud.client.logger.LegacyLoggerAdapter;
 import com.nextcloud.client.logger.Logger;
 import com.nextcloud.client.network.ConnectivityService;
@@ -101,6 +103,8 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 import androidx.multidex.MultiDexApplication;
+import androidx.work.WorkManager;
+import androidx.work.impl.WorkManagerImpl;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasAndroidInjector;
@@ -156,6 +160,9 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
     @Inject
     AppInfo appInfo;
 
+    @Inject
+    BackgroundJobManager backgroundJobManager;
+
     private PassCodeManager passCodeManager;
 
     @SuppressWarnings("unused")
@@ -182,6 +189,14 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
      */
     public PowerManagementService getPowerManagementService() {
         return powerManagementService;
+    }
+
+    /**
+     * Temporary getter enabling intermediate refactoring.
+     * TODO: remove when FileSyncHelper is refactored/removed
+     */
+    public BackgroundJobManager getBackgroundJobManager() {
+        return backgroundJobManager;
     }
 
     private String getAppProcessName() {
@@ -286,8 +301,11 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
                 Log_OC.d("Debug", "Failed to disable uri exposure");
             }
         }
-
-        initSyncOperations(uploadsStorageManager, accountManager, connectivityService, powerManagementService);
+        initSyncOperations(uploadsStorageManager,
+                           accountManager,
+                           connectivityService,
+                           powerManagementService,
+                           backgroundJobManager);
         initContactsBackup(accountManager);
         notificationChannels();
 
@@ -444,7 +462,8 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
         final UploadsStorageManager uploadsStorageManager,
         final UserAccountManager accountManager,
         final ConnectivityService connectivityService,
-        final PowerManagementService powerManagementService
+        final PowerManagementService powerManagementService,
+        final BackgroundJobManager jobManager
     ) {
         updateToAutoUpload();
         cleanOldEntries();
@@ -462,7 +481,7 @@ public class MainApp extends MultiDexApplication implements HasAndroidInjector {
 
         initiateExistingAutoUploadEntries();
 
-        FilesSyncHelper.scheduleFilesSyncIfNeeded(mContext);
+        FilesSyncHelper.scheduleFilesSyncIfNeeded(mContext, jobManager);
         FilesSyncHelper.restartJobsIfNeeded(
             uploadsStorageManager,
             accountManager,

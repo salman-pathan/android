@@ -35,6 +35,9 @@ import com.nextcloud.client.core.ThreadPoolAsyncRunner;
 import com.nextcloud.client.core.Clock;
 import com.nextcloud.client.core.ClockImpl;
 import com.nextcloud.client.device.DeviceInfo;
+import com.nextcloud.client.jobs.BackgroundJobFactory;
+import com.nextcloud.client.jobs.BackgroundJobManager;
+import com.nextcloud.client.jobs.BackgroundJobManagerImpl;
 import com.nextcloud.client.logger.FileLogHandler;
 import com.nextcloud.client.logger.Logger;
 import com.nextcloud.client.logger.LoggerImpl;
@@ -53,6 +56,9 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
+import androidx.work.WorkerFactory;
 import dagger.Module;
 import dagger.Provides;
 
@@ -67,6 +73,11 @@ class AppModule {
     @Provides
     Context context(Application application) {
         return application;
+    }
+
+    @Provides
+    ContentResolver contentResolver(Context context) {
+        return context.getContentResolver();
     }
 
     @Provides

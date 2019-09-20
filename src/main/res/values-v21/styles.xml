@@ -24,6 +24,7 @@
 
     <style name="FallbackThemingTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="android:datePickerDialogTheme">@style/FallbackDatePickerDialogTheme</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="FallbackDatePickerDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
